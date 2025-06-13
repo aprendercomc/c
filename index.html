@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aprendendo Programação com C | Curso Premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* --------- variáveis, reset, base --------- */
+    :root {
+      --primary: #00c8ff;
+      --secondary: #00ffcc;
+      --accent: #ff0055;
+      --dark: #121212;
+      --darker: #0a0a0a;
+      --light: #f0f0f0;
+      --gray: #888;
+      --success: #00e676;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--dark);
+      color: var(--light);
+      line-height: 1.7;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(circle at 25% 25%, rgba(0, 200, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(0, 255, 204, 0.05) 0%, transparent 50%);
+    }
+
+    /* --------- scrollbar --------- */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: var(--darker); }
+    ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 5px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--secondary); }
+
+    /* --------- header --------- */
+    header {
+      position: fixed; top: 0; width: 100%;
+      background: rgba(31, 31, 31, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 15px 0; z-index: 1000;
+      box-shadow: 0 4px 30px rgba(0,0,0,.3);
+      transition: all .3s ease;
+    }
+    header.scrolled { padding: 10px 0; background: rgba(15,15,15,.95); }
+    .header-container { max-width: 1200px; margin: 0 auto; padding: 0 20px;
+      display: flex; justify-content: space-between; align-items: center; }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon { color: var(--primary); font-size: 1.8rem; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.1);} 100%{transform:scale(1);} }
+    header h1 { font-size: 1.8rem; background: linear-gradient(90deg,var(--primary),var(--secondary));
+      -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 700; }
+    nav ul { display: flex; list-style: none; gap: 25px; }
+    nav a { color: var(--light); text-decoration: none; font-weight: 600; position: relative; transition: .3s; }
+    nav a:hover { color: var(--primary); }
+    nav a::after { content:''; position:absolute; bottom:-5px; left:0; width:0; height:2px;
+      background: var(--primary); transition: width .3s; }
+    nav a:hover::after { width:100%; }
+    .mobile-menu-btn { display:none; background:none; border:none; color:var(--light); font-size:1.5rem; cursor:pointer; }
+
+    /* --------- hero --------- */
+    .hero { min-height:100vh; display:flex; align-items:center; padding:100px 20px 60px; position:relative; overflow:hidden; }
+    .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 70% 30%,rgba(0,200,255,.1)0%,transparent 50%); z-index:-1; }
+    .hero-content { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center; }
+    .hero-text { animation: fadeInUp 1s ease; }
+    .hero h2 { font-size:3.5rem; margin-bottom:20px; line-height:1.2;
+      background:linear-gradient(90deg,var(--primary),var(--secondary)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .hero p { font-size:1.2rem; margin-bottom:30px; opacity:.9; }
+    .hero-image { position:relative; animation: float 6s ease-in-out infinite; }
+    @keyframes float { 0%{transform:translateY(0);} 50%{transform:translateY(-20px);} 100%{transform:translateY(0);} }
+
+    /* --------- code editor (hero) --------- */
+    .code-editor { background:#1e1e1e; border-radius:10px; overflow:hidden;
+      box-shadow:0 20px 50px rgba(0,0,0,.5); transform:perspective(1000px) rotateX(10deg) rotateY(-10deg); transition:.5s; }
+    .code-editor:hover { transform:perspective(1000px) rotateX(0) rotateY(0); }
+    .editor-header { background:#2d2d2d; padding:8px 15px; display:flex; align-items:center; gap:8px; }
+    .editor-dot { width:12px; height:12px; border-radius:50%; }
+    .dot-red{background:#ff5f56;} .dot-yellow{background:#ffbd2e;} .dot-green{background:#27c93f;}
+    .editor-title { flex-grow:1; text-align:center; color:var(--gray); font-family:'Source Code Pro',monospace; font-size:.9rem; }
+    .editor-body { padding:20px; font-family:'Source Code Pro',monospace; font-size:.95rem; line-height:1.6; }
+    .code-line { display:flex; margin-bottom:5px; }
+    .line-number { color:var(--gray); margin-right:15px; user-select:none; }
+    .code-keyword{color:#569cd6;} .code-function{color:#dcdcaa;} .code-string{color:#ce9178;}
+    .code-comment{color:#6a9955;} .code-operator{color:#d4d4d4;} .code-number{color:#b5cea8;}
+
+    /* --------- buttons --------- */
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:15px 30px; font-size:1.1rem; font-weight:600; border-radius:50px; border:none; cursor:pointer; position:relative; overflow:hidden; transition:.3s; }
+    .btn-primary{background:linear-gradient(45deg,var(--accent),#ff3388); color:#fff; box-shadow:0 5px 15px rgba(255,0,85,.4);}
+    .btn-primary:hover{transform:translateY(-3px); box-shadow:0 8px 25px rgba(255,0,85,.6);}
+    .btn-primary:active{transform:translateY(1px);}
+    .btn-primary::before{content:''; position:absolute; inset:0; left:-100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent); transition:.5s;}
+    .btn-primary:hover::before{left:100%;}
+    .btn-outline{background:transparent; color:var(--primary); border:2px solid var(--primary); margin-left:15px;}
+    .btn-outline:hover{background:rgba(0,200,255,.1); transform:translateY(-3px); }
+
+    /* --------- course sections --------- */
+    main { max-width:1200px; margin:0 auto; padding:80px 20px; }
+    .section-title { text-align:center; margin-bottom:60px; position:relative; }
+    .section-title h2 { font-size:2.5rem; background:linear-gradient(90deg,var(--primary),var(--secondary));
+      -webkit-background-clip:text; background-clip:text; color:transparent; display:inline-block; }
+    .section-title::after{content:''; display:block; width:80px; height:4px; background:linear-gradient(90deg,var(--primary),var(--secondary)); margin:15px auto 0; border-radius:2px; }
+
+    .modules-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:30px; margin-bottom:80px;}
+    .module-card{background:rgba(31,31,31,.7); border-radius:15px; padding:30px; transition:.3s; position:relative; overflow:hidden;
+      border:1px solid rgba(255,255,255,.05); backdrop-filter:blur(10px);}
+    .module-card:hover{transform:translateY(-10px); box-shadow:0 15px 30px rgba(0,0,0,.3); border-color:rgba(0,200,255,.2);}
+    .module-card::before{content:''; position:absolute; inset:0; background:radial-gradient(circle at 70% 20%,rgba(0,200,255,.05)0%,transparent 70%); z-index:-1;}
+    .module-number{font-size:1rem; font-weight:600; color:var(--primary); margin-bottom:10px; display:flex; align-items:center; gap:8px;}
+    .module-number::before{content:''; display:inline-block; width:20px; height:2px; background:var(--primary);}
+    .module-card h3{font-size:1.5rem; margin-bottom:15px; color:var(--secondary);}
+    .module-card p{color:rgba(255,255,255,.8); margin-bottom:20px;}
+    .module-features{list-style:none; margin-top:20px;}
+    .module-features li{display:flex; gap:10px; margin-bottom:10px; align-items:flex-start;}
+    .module-features i{color:var(--success); font-size:.9rem; margin-top:3px;}
+
+    /* --------- CTA --------- */
+    .cta{text-align:center; padding:80px 20px; background:linear-gradient(135deg,rgba(0,200,255,.1),rgba(0,255,204,.1));
+      border-radius:20px; position:relative; overflow:hidden; margin:80px 0;}
+    .cta::before{content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+      background:radial-gradient(circle,rgba(255,255,255,.02)0%,transparent 70%); animation:rotate 20s linear infinite; z-index:-1;}
+    @keyframes rotate{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+    .cta h2{font-size:2.5rem; margin-bottom:20px; background:linear-gradient(90deg,var(--primary),var(--secondary));
+      -webkit-background-clip:text; background-clip:text; color:transparent;}
+    .cta p{max-width:700px; margin:0 auto 30px; font-size:1.1rem;}
+    .price{font-size:3rem; font-weight:700; margin:30px 0; color:var(--light); position:relative; display:inline-block;}
+    .price::before{content:'R$ 20,00'; position:absolute; top:-20px; left:50%; transform:translateX(-50%);
+      font-size:1.2rem; text-decoration:line-through; color:var(--gray); opacity:.7;}
+    .price-badge{position:absolute; top:-15px; right:-80px; background:var(--accent); color:#fff;
+      padding:5px 15px; border-radius:20px; font-size:.9rem; font-weight:600; transform:rotate(15deg); animation:pulse 2s infinite;}
+
+    /* --------- animations --------- */
+    @keyframes fadeInUp{from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);}}
+    .animate-delay-1{animation-delay:.2s;} .animate-delay-2{animation-delay:.4s;} .animate-delay-3{animation-delay:.6s;}
+    @media(max-width:992px){
+      .hero-content{grid-template-columns:1fr; text-align:center;}
+      .hero-image{order:-1; max-width:600px; margin:0 auto;}
+      .hero h2{font-size:2.8rem;}
+    }
+    @media(max-width:768px){
+      nav ul{display:none;}
+      .mobile-menu-btn{display:block;}
+      .hero h2{font-size:2.2rem;}
+      .btn-outline{margin-left:0; margin-top:15px; display:block;}
+      .section-title h2{font-size:2rem;}
+    }
+    @media(max-width:480px){
+      .hero h2{font-size:1.8rem;}
+      .hero p{font-size:1rem;}
+      .section-title h2{font-size:1.6rem;}
+      .cta h2{font-size:1.8rem;}
+      .price{font-size:2.2rem;}
+      .price-badge{top:-10px; right:-60px; font-size:.7rem; padding:3px 10px;}
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header id="header">
+    <div class="header-container">
+      <div class="logo">
+        <div class="logo-icon"><i class="fas fa-code"></i></div>
+        <h1>Aprendendo C</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#about">Sobre</a></li>
+          <li><a href="#modules">Módulos</a></li>
+          <li><a href="#pricing">Preço</a></li>
+        </ul>
+        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="about">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h2>Domine a programação com a linguagem C</h2>
+        <p>Aprenda do zero ao avançado com nosso curso completo, desenvolvendo lógica de programação e habilidades que servirão para qualquer linguagem. Transforme-se em um desenvolvedor competente com fundamentos sólidos.</p>
+        <div>
+          <a href="#pricing" class="btn btn-primary">Quero me inscrever agora</a>
+          <a href="#modules" class="btn btn-outline">Conhecer módulos</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <div class="code-editor">
+          <div class="editor-header">
+            <div class="editor-dot dot-red"></div>
+            <div class="editor-dot dot-yellow"></div>
+            <div class="editor-dot dot-green"></div>
+            <div class="editor-title">programa.c</div>
+          </div>
+          <div class="editor-body">
+            <div class="code-line"><span class="line-number">1</span><span class="code-keyword">#include</span> <span class="code-string">&lt;stdio.h&gt;</span></div>
+            <div class="code-line"><span class="line-number">2</span></div>
+            <div class="code-line"><span class="line-number">3</span><span class="code-keyword">int</span> <span class="code-function">main</span>() {</div>
+            <div class="code-line"><span class="line-number">4</span>  <span class="code-keyword">int</span> idade <span class="code-operator">=</span> <span class="code-number">25</span>;</div>
+            <div class="code-line"><span class="line-number">5</span>  </div>
+            <div class="code-line"><span class="line-number">6</span>  <span class="code-function">printf</span>(<span class="code-string">"Digite sua idade: "</span>);</div>
+            <div class="code-line"><span class="line-number">7</span>  <span class="code-function">scanf</span>(<span class="code-string">"%d"</span>, <span class="code-operator">&</span>idade);</div>
+            <div class="code-line"><span class="line-number">8</span>  </div>
+            <div class="code-line"><span class="line-number">9</span>  <span class="code-keyword">if</span> (idade <span class="code-operator">>=</span> <span class="code-number">18</span>) {</div>
+            <div class="code-line"><span class="line-number">10</span>    <span class="code-function">printf</span>(<span class="code-string">"Você é maior de idade!\n"</span>);</div>
+            <div class="code-line"><span class="line-number">11</span>  } <span class="code-keyword">else</span> {</div>
+            <div class="code-line"><span class="line-number">12</span>    <span class="code-function">printf</span>(<span class="code-string">"Você é menor de idade.\n"</span>);</div>
+            <div class="code-line"><span class="line-number">13</span>  }</div>
+            <div class="code-line"><span class="line-number">14</span>  </div>
+            <div class="code-line"><span class="line-number">15</span>  <span class="code-keyword">return</span> <span class="code-number">0</span>;</div>
+            <div class="code-line"><span class="line-number">16</span>}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Módulos do Curso -->
+  <main id="modules">
+    <div class="section-title">
+      <h2>O que você vai aprender</h2>
+    </div>
+    
+    <div class="modules-grid">
+      <!-- módulo 1 -->
+      <div class="module-card animate__animated animate__fadeInUp">
+        <div class="module-number">Módulo 1</div>
+        <h3>Fundamentos da Programação</h3>
+        <p>Domine os conceitos essenciais que todo programador precisa saber, independente da linguagem.</p>
+        <ul class="module-features">
+          <li><i class="fas fa-check"></i> O que são algoritmos e como pensar logicamente</li>
+          <li><i class="fas fa-check"></i> Estrutura básica de um programa em C</li>
+          <li><i class="fas fa-check"></i> Variáveis e tipos de dados</li>
+          <li><i class="fas fa-check"></i> Entrada e saída de dados</li>
+          <li><i class="fas fa-check"></i> Primeiros projetos práticos</li>
+        </ul>
+      </div>
+      <!-- módulo 2 -->
+      <div class="module-card animate__animated animate__fadeInUp animate-delay-1">
+        <div class="module-number">Módulo 2</div>
+        <h3>Operadores e Expressões</h3>
+        <p>Aprenda a fazer cálculos, comparações e tomar decisões simples em seus programas.</p>
+        <ul class="module-features">
+          <li><i class="fas fa-check"></i> Operadores aritméticos</li>
+          <li><i class="fas fa-check"></i> Operadores de comparação</li>
+          <li><i class="fas fa-check"></i> Operadores lógicos (AND, OR, NOT)</li>
+          <li><i class="fas fa-check"></i> Precedência de operadores</li>
+          <li><i class="fas fa-check"></i> Exercícios práticos com cálculos</li>
+        </ul>
+      </div>
+      <!-- módulo 3 -->
+      <div class="module-card animate__animated animate__fadeInUp animate-delay-2">
+        <div class="module-number">Módulo 3</div>
+        <h3>Tomadas de Decisão</h3>
+        <p>Faça seus programas tomarem decisões diferentes baseadas em condições.</p>
+        <ul class="module-features">
+          <li><i class="fas fa-check"></i> Estruturas if, else e else if</li>
+          <li><i class="fas fa-check"></i> Operador ternário</li>
+          <li><i class="fas fa-check"></i> Estrutura switch-case</li>
+          <li><i class="fas fa-check"></i> Projeto: Calculadora simples</li>
+          <li><i class="fas fa-check"></i> Projeto: Jogo de adivinhação</li>
+        </ul>
+      </div>
+      <!-- módulo 4 -->
+      <div class="module-card animate__animated animate__fadeInUp animate-delay-3">
+        <div class="module-number">Módulo 4</div>
+        <h3>Laços de Repetição</h3>
+        <p>Automatize tarefas repetitivas e crie programas mais eficientes.</p>
+        <ul class="module-features">
+          <li><i class="fas fa-check"></i> Loops while e do-while</li>
+          <li><i class="fas fa-check"></i> Loop for</li>
+          <li><i class="fas fa-check"></i> Controle de loops (break e continue)</li>
+          <li><i class="fas fa-check"></i> Loops aninhados</li>
+          <li><i class="fas fa-check"></i> Projeto: Jogo da forca</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <!-- CTA Section -->
+  <section class="cta" id="pricing">
+    <h2>Comece sua jornada na programação hoje!</h2>
+    <p>Adquira agora nosso curso completo de programação com C e dê o primeiro passo para se tornar um desenvolvedor competente.</p>
+    
+    <div class="price">
+      R$ 10,00
+      <span class="price-badge">50% OFF</span>
+    </div>
+    
+    <a href="https://kiwify.app/HlOPJbj" class="btn btn-primary">
+      <i class="fas fa-credit-card"></i> Quero garantir minha vaga
+    </a>
+  </section>
+
+  <!-- Scripts -->
+  <script>
+    // Header scroll effect
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+
+    // Smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({ top: targetElement.offsetTop - 80, behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const navUl = document.querySelector('nav ul');
+    mobileMenuBtn.addEventListener('click', () => {
+      navUl.style.display = navUl.style.display === 'flex' ? 'none' : 'flex';
+    });
+
+    // Animate modules on view
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('animate__fadeInUp');
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.module-card').forEach(card => observer.observe(card));
+  </script>
+</body>
+</html>
+
